@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Строка таблицы → текст предложения</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <!-- <header>
+    <h1>Преобразование строки из таблицы → текст</h1>
+    <p>Вставьте строку (TSV/CSV/копия из Excel). Каждая ячейка обрабатывается своей функцией.</p>
+  </header> -->
+
+  <div class="container">
+    <section class="card">
+      <header>
+        <h2>Входные данные</h2>
+      </header>
+      <div class="content">
+        <label>Вставьте сюда строку из таблицы</label>
+        <textarea id="row" class="mono"></textarea>
+
+        <div class="addition">
+          <label><input type="checkbox" id="check-dimensions">Нет точных размеров</label>
+          <label><input type="checkbox" id="check-delivery">Довоз</label>
+          <label><input type="checkbox" id="check-MZL">Груз в Маньчжурии</label>
+          <label><input type="checkbox" id="check-adr">ADR груз</label>
+          <label><input type="checkbox" id="check-stackable">Считал как штаб</label>
+          <label><input type="checkbox" id="check-non-stackable">Считал как не штаб</label>
+          <label><input type="checkbox" id="optionSeven">Опция 7</label>
+          <label><input type="checkbox" id="optionEight">Опция 8</label>
+        </div>
+
+        <div class="btns">
+          <button class="transform-button" onclick="transform()">Преобразовать</button>
+          <button class="reset-button" onclick="resetAll()">Сбросить</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <header>
+        <h2>Результат</h2>
+      </header>
+      <div class="content">
+        <div id="out" class="preview mono">Здесь появится текст.</div>
+        <div class="btns"><button onclick="copyOut()">Копировать</button></div>
+      </div>
+    </section>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    function detectSep(s) {
+      const counts = {
+        '\t': (s.match(/\t/g) || []).length,
+        ';': (s.match(/;/g) || []).length,
+        ',': (s.match(/,/g) || []).length,
+        '|': (s.match(/\|/g) || []).length,
+      };
+      let best = '\t', max = counts['\t'];
+      for (const k of [';', ',', '|']) {
+        if (counts[k] > max) { max = counts[k]; best = k; }
+      }
+      return max > 0 ? best : null;
+    }
+
+    function parseRow(raw, sepMode, doTrim) {
+      let sep = sepMode === 'auto' ? detectSep(raw) : sepMode;
+      if (!sep) sep = '\t';
+      let parts = raw.split(sep);
+      if (doTrim === 'yes') parts = parts.map(p => p.trim());
+      return parts;
+    }
+
+    // --- обработчики для конкретных ячеек ---
+    function handleCode(cell) { return /^\d{1,2}-\d{1,2}$/.test(cell) ? cell : ''; }
+    function handleCompany(cell) {
+      const matches = cell.match(/\((.*?)\)/g);
+
+      if (matches) {
+        const extractedText = matches.map(m => m.slice(1, -1)); // Убираем скобки
+        // console.log(extractedText); // Выведет: ["мир", "ещё"]
+        return extractedText;
+      }
+    }
+    function handlePrice(cell) { return cell }
+    function handleSvh(cell) {
+      // if (/СВХ/i.test(cell)) return cell.replace(/СВХ\s+Бобруйск/ig, 'СВХ Бобруйска');
+      return cell;
+    }
+
+    function handleTransit(cell) {
+      cell = cell.trim();
+      const numbers = cell.match(/\d+/g);
+      if (!numbers) return cell;
+
+      const number = parseInt(numbers[numbers.length - 1], 10);
+      const lastDigit = number % 10;
+      const lastTwoDigits = number % 100;
+
+      let suffix;
+      if (lastDigit === 1 && lastTwoDigits !== 11) {
+        suffix = "день";
+      } else if ([2, 3, 4].includes(lastDigit) && ![12, 13, 14].includes(lastTwoDigits)) {
+        suffix = "дня";
+      } else {
+        suffix = "дней";
+      }
+
+      return cell.replace(/\s*(день|дня|дней)?$/i, "") + " " + suffix;
+    }
+
+    function getTodayDate() {
+      const today = new Date();
+
+      const day = String(today.getDate()).padStart(2, '0');
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const year = today.getFullYear();
+
+      return `${day}.${month}.${year}`;
+    }
+
+
+    // карта функций по индексам (можно менять под структуру строки)
+    const cellHandlers = {
+      1: handleCode,     // ячейка №1 — номер запроса
+      6: handleCompany,  // ячейка №4 — заказчик
+      8: handleSvh,      // ячейка №6 — СВХ
+      16: handlePrice,   // ячейка №12 — цена
+      17: handleTransit  // ячейка №13 — транзит
+    };
+
+    function transform() {
+      const raw = document.getElementById('row').value;
+      if (!raw.trim()) {
+        document.getElementById('out').textContent = 'Введите строку из таблицы.';
+        return;
+      }
+
+      const parts = parseRow(raw);
+      let collected = { code: '', price: '', svh: '', transit: '' };
+
+      parts.forEach((cell, idx) => {
+        if (cellHandlers[idx]) {
+          const res = cellHandlers[idx](cell);
+          if (idx === 1) collected.code = res;
+          if (idx === 6) collected.company = res;
+          if (idx === 8) collected.svh = res;
+          if (idx === 16) collected.price = res;
+          if (idx === 17) collected.transit = res;
+        }
+      });
+
+      const lines = [];
+      if (collected.code) lines.push(`${collected.code} (${collected.company})`);
+      if (collected.price || collected.svh || collected.transit) {
+        const destText = collected.svh ? `до ${collected.svh}` : '';
+        const transitText = collected.transit ? ` Транзитные сроки ${collected.transit}.` : '';
+        lines.push(`${collected.price ? collected.price + ' USD' : ''} ${destText}.${transitText}`);
+      }
+      if (document.getElementById('check-dimensions').checked) { lines.push("* Ставка ориентировочная, так как нет точных размеров груза. Когда появятся размеры, ставка будет пересчитана."); }
+      if (document.getElementById('check-adr').checked) { lines.push("* В ставку включёна стоимость автомобиля для перевозки опасных грузов (ADR)."); }
+      if (document.getElementById('check-stackable').checked) { lines.push("* Груз считался как штабелируемы."); }
+      if (document.getElementById('check-non-stackable').checked) { lines.push("* Груз считался как не штабелируемы."); }
+      if (document.getElementById('check-MZL').checked) { lines.push("* Ставка действительна при условии доставки груза на склад нашего агента. Если необходим своза нашими силами, стоимость будет пересмотрена."); }
+      if (document.getElementById('check-delivery').checked) { lines.push("* Стоимость довоза до __ включена в ставку."); }
+
+      lines.push(`* Ставка действительна в течение 5и дней (с ${getTodayDate()}).`);
+
+      document.getElementById('out').textContent = lines.join('\n');
+    }
+
+    function resetAll() {
+      document.getElementById('row').value = '';
+      document.getElementById('check-dimensions').checked = false;
+      document.getElementById('check-adr').checked = false;
+      document.getElementById('check-delivery').checked = false;
+      document.getElementById('check-MZL').checked = false;
+      document.getElementById('check-stackable').checked = false;
+      document.getElementById('check-non-stackable').checked = false;
+      document.getElementById('row').focus();
+      document.getElementById('out').textContent = 'Здесь появится текст.';
+    }
+
+    function showToast(message, isError = false) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.className = "toast" + (isError ? " error" : "");
+      toast.classList.add("show");
+
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 1000);
+    }
+
+    async function copyOut() {
+      const text = document.getElementById('out').textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast("Скопировано!");
+      } catch {
+        showToast("Не удалось скопировать!", true);
+      }
+    }
+
+  </script>
+</body>
+
+</html>
+<!-- + добавить дату когда была дана ставка -->
+<!-- + quality of life (фокус на строке ввода, убрал alert) -->
+<!-- + добавить выбор шаблонов (АДР, Бренд, Довоз, ...) -->
+<!-- добавить считал груз как штабелируемый -->
