@@ -6,6 +6,7 @@
   <title>Строка таблицы → текст предложения</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style-bp.css">
 </head>
 
 <body>
@@ -165,10 +166,10 @@
       }
       if (document.getElementById('check-dimensions').checked) { lines.push("* Ставка ориентировочная, так как нет точных размеров груза. Когда появятся размеры, ставка будет пересчитана."); }
       if (document.getElementById('check-adr').checked) { lines.push("* В ставку включёна стоимость автомобиля для перевозки опасных грузов (ADR)."); }
-      if (document.getElementById('check-stackable').checked) { lines.push("* Груз считался как штабелируемы."); }
-      if (document.getElementById('check-non-stackable').checked) { lines.push("* Груз считался как не штабелируемы."); }
-      if (document.getElementById('check-MZL').checked) { lines.push("* Ставка действительна при условии доставки груза на склад нашего агента. Если необходим своза нашими силами, стоимость будет пересмотрена."); }
-      if (document.getElementById('check-delivery').checked) { lines.push("* Стоимость довоза до __ включена в ставку."); }
+      if (document.getElementById('check-stackable').checked) { lines.push("* Груз считался как штабелируемый."); }
+      if (document.getElementById('check-non-stackable').checked) { lines.push("* Груз считался как не штабелируемый."); }
+      if (document.getElementById('check-MZL').checked) { lines.push("* Ставка действительна при условии доставки груза на склад нашего агента. Если необходим своз нашими силами, стоимость будет пересмотрена."); }
+      if (document.getElementById('check-delivery').checked) { lines.push("* Стоимость довоза включена в ставку."); }
 
       lines.push(`* Ставка действительна в течение 5и дней (с ${getTodayDate()}).`);
 
@@ -195,7 +196,7 @@
 
       setTimeout(() => {
         toast.classList.remove("show");
-      }, 1000);
+      }, 1200);
     }
 
     async function copyOut() {

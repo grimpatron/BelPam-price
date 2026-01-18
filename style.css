@@ -129,9 +129,19 @@ button.transform-button {
  background: linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 90%, black));
 }
 
+button.transform-button:hover {
+ transition: all .3s ease-in-out;
+ background: linear-gradient(180deg, #20b857, color-mix(in srgb, var(--accent) 90%, black));
+}
+
 button.reset-button {
  /* background: #1f2937; */
  color: var(--text);
+}
+
+button.reset-button:hover {
+ transition: all .3s ease-in-out;
+ background: #d1d1d1;
 }
 
 .preview {
@@ -147,39 +157,11 @@ button.reset-button {
 .mono {
  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
  resize: none;
- background-color: rgb(225, 225, 235);
+ background-color: rgb(235, 235, 240);
 }
 
 .hint {
  color: var(--muted);
  font-size: 12px;
  margin-top: 6px;
-}
-
-.toast {
- visibility: hidden;
- min-width: 200px;
- background-color: #4caf50;
- color: #fff;
- text-align: center;
- border-radius: 4px;
- padding: 12px;
- position: fixed;
- z-index: 100;
- left: 50%;
- bottom: 20px;
- transform: translateX(-50%);
- font-size: 14px;
- opacity: 0;
- transition: opacity 0.5s, bottom 0.5s;
-}
-
-.toast.show {
- visibility: visible;
- opacity: 1;
- bottom: 50px;
-}
-
-.toast.error {
- background-color: #f44336;
 }
