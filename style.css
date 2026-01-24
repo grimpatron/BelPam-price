@@ -15,9 +15,9 @@
 body {
  margin: 0;
  background: var(--bg);
+ background: linear-gradient(to right, #ffecd2 0%, #c6b4f7 100%);
  color: var(--text);
  font-family: Inter, system-ui, Arial, sans-serif;
- background: linear-gradient(to right, #ffecd2 0%, #c6b4f7 100%);
 }
 
 header {
@@ -62,21 +62,33 @@ header p {
 
 .content {
  padding: 14px;
- background-color: rgba(0, 0, 0, 0.2);
+ background-color: rgba(0, 0, 50, 0.3);
 }
 
 .addition {
- display: flex;
+ /* display: flex;
  align-items: center;
- flex-wrap: wrap;
+ flex-wrap: wrap; */
  padding: 14px;
 }
 
-.addition label {
+.addition-block {
+ display: flex;
+ align-items: center;
+ flex-wrap: wrap;
+}
+
+.addition-block label {
  flex: 1 1 25%;
  display: flex;
  align-items: center;
  cursor: pointer;
+}
+
+.addition-block label:hover {
+ /* background-color: rgba(0, 0, 50, 0.05); */
+ color: rgb(6, 75, 75);
+ transition: all .3s;
 }
 
 label {

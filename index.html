@@ -25,14 +25,18 @@
         <textarea id="row" class="mono"></textarea>
 
         <div class="addition">
-          <label><input type="checkbox" id="check-dimensions">Нет точных размеров</label>
-          <label><input type="checkbox" id="check-delivery">Довоз</label>
-          <label><input type="checkbox" id="check-MZL">Груз в Маньчжурии</label>
-          <label><input type="checkbox" id="check-adr">ADR груз</label>
-          <label><input type="checkbox" id="check-stackable">Считал как штаб</label>
-          <label><input type="checkbox" id="check-non-stackable">Считал как не штаб</label>
-          <label><input type="checkbox" id="optionSeven">Опция 7</label>
-          <label><input type="checkbox" id="optionEight">Опция 8</label>
+          <div class="addition-block">
+            <label><input type="checkbox" id="check-delivery">Довоз</label>
+            <label><input type="checkbox" id="check-MZL">Груз в Маньчжурии</label>
+            <label><input type="checkbox" id="check-adr">ADR авто</label>
+            <label><input type="checkbox" id="check-adr9">ADR груз (2 цены)</label>
+          </div>
+          <div class="addition-block">
+            <label><input type="checkbox" id="check-dimensions">Нет точных размеров</label>
+            <label><input type="checkbox" id="check-stackable">Считал как штаб (✅)</label>
+            <label><input type="checkbox" id="check-non-stackable">Считал как не штаб (❌)</label>
+            <label><input type="checkbox" id="optionEight">Опция 8</label>
+          </div>
         </div>
 
         <div class="btns">
@@ -159,10 +163,20 @@
 
       const lines = [];
       if (collected.code) lines.push(`${collected.code} (${collected.company})`);
-      if (collected.price || collected.svh || collected.transit) {
-        const destText = collected.svh ? `до ${collected.svh}` : '';
-        const transitText = collected.transit ? ` Транзитные сроки ${collected.transit}.` : '';
-        lines.push(`${collected.price ? collected.price + ' USD' : ''} ${destText}.${transitText}`);
+      if (document.getElementById('check-adr9').checked) {
+        if (collected.price || collected.svh || collected.transit) {
+          const destText = collected.svh ? `до ${collected.svh}` : '';
+          lines.push(`${collected.price ? collected.price + ' USD' : ''} ${destText} если упаковка груза имеет знаки, обозначающие что груз опасный, в таком случае необходим ADR автомобиль по Китаю.`);
+          lines.push(`__ USD ${destText} если упаковка груза не имеет знаков, обозначающих что груз опасный, в таком случае китайский своз можем сделать в обычном авто.`);
+          const transitText = collected.transit ? ` Транзитные сроки ${collected.transit}.` : '';
+          lines.push(`*${transitText}`);
+        }
+      } else {
+        if (collected.price || collected.svh || collected.transit) {
+          const destText = collected.svh ? `до ${collected.svh}` : '';
+          const transitText = collected.transit ? ` Транзитные сроки ${collected.transit}.` : '';
+          lines.push(`${collected.price ? collected.price + ' USD' : ''} ${destText}.${transitText}`);
+        }
       }
       if (document.getElementById('check-dimensions').checked) { lines.push("* Ставка ориентировочная, так как нет точных размеров груза. Когда появятся размеры, ставка будет пересчитана."); }
       if (document.getElementById('check-adr').checked) { lines.push("* В ставку включёна стоимость автомобиля для перевозки опасных грузов (ADR)."); }
@@ -171,7 +185,8 @@
       if (document.getElementById('check-MZL').checked) { lines.push("* Ставка действительна при условии доставки груза на склад нашего агента. Если необходим своз нашими силами, стоимость будет пересмотрена."); }
       if (document.getElementById('check-delivery').checked) { lines.push("* Стоимость довоза включена в ставку."); }
 
-      lines.push(`* Ставка действительна в течение 5и дней (с ${getTodayDate()}).`);
+      // lines.push(`* Ставка действительна в течение 5и дней (с ${getTodayDate()}).`);
+      lines.push(`* Ставка действительна при условии забора груза в Китае до конца января.`);
 
       document.getElementById('out').textContent = lines.join('\n');
     }
@@ -180,6 +195,7 @@
       document.getElementById('row').value = '';
       document.getElementById('check-dimensions').checked = false;
       document.getElementById('check-adr').checked = false;
+      document.getElementById('check-adr9').checked = false;
       document.getElementById('check-delivery').checked = false;
       document.getElementById('check-MZL').checked = false;
       document.getElementById('check-stackable').checked = false;
@@ -215,5 +231,4 @@
 </html>
 <!-- + добавить дату когда была дана ставка -->
 <!-- + quality of life (фокус на строке ввода, убрал alert) -->
-<!-- + добавить выбор шаблонов (АДР, Бренд, Довоз, ...) -->
-<!-- добавить считал груз как штабелируемый -->
+<!-- + добавить выбор шаблонов (АДР, Бренд, Довоз, Штаб) -->
