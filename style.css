@@ -13,9 +13,10 @@
 }
 
 body {
+ min-height: 100vh;
  margin: 0;
  background: var(--bg);
- background: linear-gradient(to right, #ffecd2 0%, #c6b4f7 100%);
+ background: linear-gradient(135deg, #ffecd2 0%, #b8a6e9 100%);
  color: var(--text);
  font-family: Inter, system-ui, Arial, sans-serif;
 }
@@ -51,6 +52,8 @@ header p {
 }
 
 .card header {
+ color: white;
+ background-color: rgba(0, 0, 50, 0.5);
  padding: 12px 14px;
  border-bottom: 1px solid var(--border);
 }
@@ -62,7 +65,7 @@ header p {
 
 .content {
  padding: 14px;
- background-color: rgba(0, 0, 50, 0.3);
+ background-color: rgba(0, 0, 50, 0.35);
 }
 
 .addition {
@@ -95,7 +98,7 @@ label {
  display: block;
  margin-bottom: 6px;
  color: var(--muted);
- font-size: 12px;
+ font-size: 13px;
 }
 
 textarea,
@@ -136,14 +139,33 @@ button {
  cursor: pointer;
 }
 
-button.transform-button {
+/* button.transform-button {
  border: 1px solid #1f6b3f;
  background: linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 90%, black));
+ } */
+
+/* button.transform-button:hover {
+  transition: all 3s ease-in-out;
+  background: #20b857;
+  background: linear-gradient(180deg, #20b857, color-mix(in srgb, var(--accent) 90%, black));
+  } */
+
+@property --grad-color {
+ syntax: '<color>';
+ initial-value: #22c55e;
+ inherits: false;
+}
+
+button.transform-button {
+ border: none;
+ background: linear-gradient(180deg, var(--grad-color), color-mix(in srgb, var(--grad-color) 90%, black));
+ transition: --grad-color 0.5s ease;
 }
 
 button.transform-button:hover {
+ --grad-color: #20b857;
  transition: all .3s ease-in-out;
- background: linear-gradient(180deg, #20b857, color-mix(in srgb, var(--accent) 90%, black));
+ /* меняем только переменную */
 }
 
 button.reset-button {
