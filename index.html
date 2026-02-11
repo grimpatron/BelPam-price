@@ -36,10 +36,16 @@
             <label><input type="checkbox" id="check-non-stackable">Считал как не штаб (❌)</label>
             <label><input type="checkbox" id="check-temperature">Температурный режим (🌡️)</label>
           </div>
-          <div class="addition-block">
-            <input type="radio" name="relevance" id="one-day-relevance">
-            <input type="radio" name="relevance" id="three-day-relevance">
-            <input type="radio" name="relevance" id="five-day-relevance">
+          <div class="relevance-block">
+            <span>Действие ставки: </span>
+            <input class="relevance-radio" type="radio" name="relevance" id="one-day-relevance">
+            <label class="relevance-label" for="one-day-relevance">1 день</label>
+            <input class="relevance-radio" type="radio" name="relevance" id="three-day-relevance" checked>
+            <label class="relevance-label" for="three-day-relevance">3 дня</label>
+            <input class="relevance-radio" type="radio" name="relevance" id="five-day-relevance">
+            <label class="relevance-label" for="five-day-relevance">5 дней</label>
+            <input class="relevance-radio" type="radio" name="relevance" id="seven-day-relevance">
+            <label class="relevance-label" for="seven-day-relevance">7 дней</label>
           </div>
         </div>
 
@@ -189,11 +195,24 @@
       if (document.getElementById('check-MZL').checked) { lines.push("* Ставка действительна при условии доставки груза на склад нашего агента. Если необходим своз нашими силами, стоимость будет пересмотрена."); }
       if (document.getElementById('check-delivery').checked) { lines.push("* Стоимость довоза включена в ставку."); }
 
-      lines.push(`* Ставка действительна в день просчёта (с ${getTodayDate()}).`);
-      lines.push(`* При стоимость груза свыше 50000 USD, стоимость ЭПИ по квитанции выставляется на клиента.`);
-      // lines.push(`* Ставка действительна в течение 3х дней (с ${getTodayDate()}).`);
-      // lines.push(`* Ставка действительна при условии забора груза в Китае до конца января.`);
 
+      // Вместо всего блока с addEventListener, используйте это:
+      const selectedRadio = document.querySelector('input[name="relevance"]:checked');
+      if (selectedRadio) {
+        const today = getTodayDate();
+        switch (selectedRadio.id) {
+          case 'one-day-relevance':
+            lines.push(`* Ставка действительна в день просчёта (${today}).`); break;
+          case 'three-day-relevance':
+            lines.push(`* Ставка действительна в течение 3х дней (с ${today}).`); break;
+          case 'five-day-relevance':
+            lines.push(`* Ставка действительна в течение 5и дней (с ${today}).`); break;
+          case 'seven-day-relevance':
+            lines.push(`* Ставка действительна в течение 7и дней (с ${today}).`); break;
+        }
+      }
+
+      lines.push(`* При стоимости груза свыше 50000 USD, стоимость ЭПИ по квитанции выставляется на клиента.`);
       document.getElementById('out').textContent = lines.join('\n');
     }
 
@@ -239,4 +258,4 @@
 <!-- + добавить дату когда была дана ставка -->
 <!-- + quality of life (фокус на строке ввода, убрал alert) -->
 <!-- + добавить выбор шаблонов (АДР, РЕФ, Бренд, Довоз, Штаб) -->
-<!-- добавить выбор срока актуальности ставки -->
+<!-- + добавить выбор сроки актуальности ставки -->
