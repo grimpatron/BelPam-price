@@ -208,6 +208,7 @@ button.reset-button:hover {
 
 .relevance-block {
   font-size: 14px;
+  padding: 20px 0 0;
 }
 
 .relevance-label {
@@ -216,4 +217,9 @@ button.reset-button:hover {
 
 .relevance-radio {
   margin: 0 0 0 10px;
+}
+
+.label-epi {
+  display: inline;
+  margin-left: 25px;
 }

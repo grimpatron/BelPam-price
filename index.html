@@ -46,6 +46,7 @@
             <label class="relevance-label" for="five-day-relevance">5 дней</label>
             <input class="relevance-radio" type="radio" name="relevance" id="seven-day-relevance">
             <label class="relevance-label" for="seven-day-relevance">7 дней</label>
+            <label class="label-epi"><input type="checkbox" id="check-EPI" checked>Распределение расходов за ЭПИ</label>
           </div>
         </div>
 
@@ -140,7 +141,7 @@
     }
 
 
-    // карта функций по индексам (можно менять под структуру строки)
+    // карта функций по индексам
     const cellHandlers = {
       1: handleCode,     // ячейка №1 — номер запроса
       6: handleCompany,  // ячейка №4 — заказчик
@@ -196,23 +197,17 @@
       if (document.getElementById('check-delivery').checked) { lines.push("* Стоимость довоза включена в ставку."); }
 
 
-      // Вместо всего блока с addEventListener, используйте это:
       const selectedRadio = document.querySelector('input[name="relevance"]:checked');
       if (selectedRadio) {
         const today = getTodayDate();
         switch (selectedRadio.id) {
-          case 'one-day-relevance':
-            lines.push(`* Ставка действительна в день просчёта (${today}).`); break;
-          case 'three-day-relevance':
-            lines.push(`* Ставка действительна в течение 3х дней (с ${today}).`); break;
-          case 'five-day-relevance':
-            lines.push(`* Ставка действительна в течение 5и дней (с ${today}).`); break;
-          case 'seven-day-relevance':
-            lines.push(`* Ставка действительна в течение 7и дней (с ${today}).`); break;
+          case 'one-day-relevance': lines.push(`* Ставка действительна в день просчёта (${today}).`); break;
+          case 'three-day-relevance': lines.push(`* Ставка действительна в течение 3х дней (с ${today}).`); break;
+          case 'five-day-relevance': lines.push(`* Ставка действительна в течение 5и дней (с ${today}).`); break;
+          case 'seven-day-relevance': lines.push(`* Ставка действительна в течение 7и дней (с ${today}).`); break;
         }
       }
-
-      lines.push(`* При стоимости груза свыше 50000 USD, стоимость ЭПИ по квитанции выставляется на клиента.`);
+      if (document.getElementById('check-EPI').checked) { lines.push(`* Если груз стоит дороже 50000 USD, мы компенсируем 50 USD за ЭПИ, а всё, что сверху по квитанции, выставляем на оплату клиенту.`); }
       document.getElementById('out').textContent = lines.join('\n');
     }
 
